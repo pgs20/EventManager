@@ -4,6 +4,7 @@ import dev.petrov.converter.Converter;
 import dev.petrov.dto.LocationDto;
 import dev.petrov.service.LocationsService;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,11 +23,13 @@ public class LocationsController {
     }
 
     @GetMapping
-    public List<LocationDto> getAllLocations() {
-        return locationsService.getAllLocations()
+    public ResponseEntity<List<LocationDto>> getAllLocations() {
+        List<LocationDto> locationDtoList =  locationsService.getAllLocations()
                 .stream()
                 .map(converter::toDto)
                 .collect(Collectors.toList());
+
+        return ResponseEntity.ok().body(locationDtoList);
     }
 
     @PostMapping

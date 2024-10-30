@@ -53,4 +53,15 @@ public class LocationEntity {
     public void setId(Long id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "LocationEntity{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", capacity=" + capacity +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }
