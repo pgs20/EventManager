@@ -7,15 +7,15 @@ import jakarta.validation.constraints.Size;
 
 public class LocationDto {
     @Null
-    private Long id;
+    private final Long id;
     @NotBlank
     @Size(max = 30)
-    private String name;
+    private final String name;
     @NotBlank
-    private String address;
+    private final String address;
     @Min(value = 1000)
-    private Integer capacity;
-    private String description;
+    private final Integer capacity;
+    private final String description;
 
     public LocationDto(Long id, String name, String address, Integer capacity, String description) {
         this.id = id;
