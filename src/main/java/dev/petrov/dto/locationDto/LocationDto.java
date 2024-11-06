@@ -1,4 +1,4 @@
-package dev.petrov.dto;
+package dev.petrov.dto.locationDto;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

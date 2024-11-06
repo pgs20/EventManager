@@ -1,11 +1,9 @@
 package dev.petrov.advice;
 
-import dev.petrov.dto.ServerErrorDto;
+import dev.petrov.dto.ErrorMessageResponse;
 import jakarta.persistence.EntityNotFoundException;
-import org.hibernate.exception.DataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -21,8 +19,8 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ServerErrorDto> handleGenericException(EntityNotFoundException e) {
-        ServerErrorDto errorDto = new ServerErrorDto(
+    public ResponseEntity<ErrorMessageResponse> handleGenericException(EntityNotFoundException e) {
+        ErrorMessageResponse errorDto = new ErrorMessageResponse(
                 "Сущность не найдена",
                 e.getMessage(),
                 LocalDateTime.now()
@@ -36,14 +34,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ServerErrorDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        ServerErrorDto errorDto = new ServerErrorDto(
+    public ResponseEntity<ErrorMessageResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        ErrorMessageResponse errorDto = new ErrorMessageResponse(
                 "Невалидные данные",
                 e.getBindingResult()
                         .getFieldErrors()
                         .stream()
                         .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                        .collect(Collectors.joining()),
+                        .collect(Collectors.joining(", ")),
                 LocalDateTime.now()
         );
 

@@ -1,18 +1,15 @@
 package dev.petrov.service;
 
 import dev.petrov.converter.Converter;
-import dev.petrov.dto.Location;
+import dev.petrov.dto.locationDto.Location;
 import dev.petrov.entity.LocationEntity;
 import dev.petrov.repository.LocationRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.hibernate.exception.DataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.BatchUpdateException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 

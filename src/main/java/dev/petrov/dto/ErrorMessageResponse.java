@@ -2,7 +2,7 @@ package dev.petrov.dto;
 
 import java.time.LocalDateTime;
 
-public record ServerErrorDto(
+public record ErrorMessageResponse(
         String message,
         String detailedMessage,
         LocalDateTime dateTime
