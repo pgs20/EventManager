@@ -7,4 +7,12 @@ public record ErrorMessageResponse(
         String detailedMessage,
         LocalDateTime dateTime
 ) {
+    @Override
+    public String toString() {
+        return "ErrorMessageResponse{" +
+                "message='" + message + '\'' +
+                ", detailedMessage='" + detailedMessage + '\'' +
+                ", dateTime=" + dateTime +
+                '}';
+    }
 }
