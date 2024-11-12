@@ -3,6 +3,7 @@ package dev.petrov.config;
 import dev.petrov.security.CustomAccessDeniedHandler;
 import dev.petrov.security.CustomAuthenticationEntryPoint;
 import dev.petrov.security.CustomUserDetailsService;
+import dev.petrov.security.jwt.JwtTokenFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -14,8 +15,10 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
 @Configuration
 public class SecurityConfiguration {
@@ -23,13 +26,16 @@ public class SecurityConfiguration {
     private final CustomUserDetailsService customUserDetailsService;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final JwtTokenFilter jwtTokenFilter;
 
     public SecurityConfiguration(CustomUserDetailsService customUserDetailsService,
                                  CustomAuthenticationEntryPoint authenticationEntryPoint,
-                                 CustomAccessDeniedHandler customAccessDeniedHandler) {
+                                 CustomAccessDeniedHandler customAccessDeniedHandler,
+                                 JwtTokenFilter jwtTokenFilter) {
         this.customUserDetailsService = customUserDetailsService;
         this.authenticationEntryPoint = authenticationEntryPoint;
         this.customAccessDeniedHandler = customAccessDeniedHandler;
+        this.jwtTokenFilter = jwtTokenFilter;
     }
 
     @Bean
@@ -47,12 +53,13 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.PUT, "/locations/**").hasAuthority("ADMIN")
 
                                 .requestMatchers(HttpMethod.GET, "/users/**").hasAuthority("ADMIN")
-                                .requestMatchers(HttpMethod.POST, "/users", "/users/auth").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/users/**").permitAll()
                                 .anyRequest().authenticated()
                 ).exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(customAccessDeniedHandler))
-                .httpBasic(Customizer.withDefaults())
+                .addFilterBefore(jwtTokenFilter, AnonymousAuthenticationFilter.class)
                 .build();
     }
 
@@ -68,8 +75,13 @@ public class SecurityConfiguration {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
 
         authenticationProvider.setUserDetailsService(customUserDetailsService);
-        authenticationProvider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
+        authenticationProvider.setPasswordEncoder(passwordEncoder());
 
         return authenticationProvider;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

@@ -7,10 +7,18 @@ import dev.petrov.dto.usersDto.UserDto;
 import dev.petrov.dto.usersDto.UserRegistrationDto;
 import dev.petrov.entity.LocationEntity;
 import dev.petrov.entity.UserEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Converter {
+
+    private final PasswordEncoder passwordEncoder;
+
+    public Converter(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
     //Для Location
     public LocationDto toDto(Location location) {
         return new LocationDto(
@@ -71,7 +79,7 @@ public class Converter {
     public UserEntity toEntity(User user) {
         return new UserEntity(
                 user.getLogin(),
-                user.getPasswordHash(),
+                passwordEncoder.encode(user.getPassword()),
                 user.getAge(),
                 user.getRole().name()
         );

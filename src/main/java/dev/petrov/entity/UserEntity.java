@@ -13,7 +13,7 @@ public class UserEntity {
     @Column(name = "user_login", unique = true)
     private String login;
     @Column(name = "user_password", nullable = false)
-    private String passwordHash;
+    private String password;
     @Column(name = "user_age")
     private Integer age;
     @Column(name = "role")
@@ -22,15 +22,15 @@ public class UserEntity {
     public UserEntity() {
     }
 
-    public UserEntity(String login, String passwordHash, String userRole) {
+    public UserEntity(String login, String password, String userRole) {
         this.login = login;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.role = userRole;
     }
 
-    public UserEntity(String login, String passwordHash, Integer age, String userRole) {
+    public UserEntity(String login, String password, Integer age, String userRole) {
         this.login = login;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.age = age;
         this.role = userRole;
     }
@@ -43,8 +43,8 @@ public class UserEntity {
         return login;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
     public Integer getAge() {
@@ -60,7 +60,7 @@ public class UserEntity {
         return "UserEntity{" +
                 "id=" + id +
                 ", login='" + login + '\'' +
-                ", passwordHash='" + passwordHash + '\'' +
+                ", passwordHash='" + password + '\'' +
                 ", age=" + age +
                 ", role='" + role + '\'' +
                 '}';

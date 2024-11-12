@@ -3,13 +3,13 @@ package dev.petrov.dto.usersDto;
 public class User {
     private Integer id;
     private String login;
-    private String passwordHash;
+    private String password;
     private Integer age;
     private UserRole userRole;
 
-    public User(String login, String passwordHash, Integer age) {
+    public User(String login, String password, Integer age) {
         this.login = login;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.age = age;
         this.userRole = UserRole.USER;
     }
@@ -29,8 +29,8 @@ public class User {
         return login;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
     public Integer getAge() {

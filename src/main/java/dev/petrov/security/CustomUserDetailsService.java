@@ -27,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь с таким логином не найден"));
 
         return User.withUsername(userEntity.getLogin())
-                .password(userEntity.getPasswordHash())
+                .password(userEntity.getPassword())
                 .authorities(userEntity.getRole())
                 .build();
     }
