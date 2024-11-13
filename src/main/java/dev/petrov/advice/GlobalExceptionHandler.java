@@ -1,5 +1,6 @@
 package dev.petrov.advice;
 
+import dev.petrov.advice.exception.UserAlreadyExistsException;
 import dev.petrov.dto.ErrorMessageResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -63,6 +64,21 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorMessageResponse> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
+        ErrorMessageResponse errorDto = new ErrorMessageResponse(
+                "Невалидные данные",
+                e.getMessage(),
+                LocalDateTime.now()
+        );
+
+        log.error(errorDto.detailedMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
                 .body(errorDto);
     }
 }

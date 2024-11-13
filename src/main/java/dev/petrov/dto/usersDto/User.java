@@ -11,14 +11,13 @@ public class User {
         this.login = login;
         this.password = password;
         this.age = age;
-        this.userRole = UserRole.USER;
     }
 
-    public User(Integer id, String login, Integer age) {
+    public User(Integer id, String login, Integer age, UserRole userRole) {
         this.id = id;
         this.login = login;
         this.age = age;
-        this.userRole = UserRole.USER;
+        this.userRole = userRole;
     }
 
     public Integer getId() {
@@ -39,5 +38,13 @@ public class User {
 
     public UserRole getRole() {
         return userRole;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
     }
 }

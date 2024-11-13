@@ -1,6 +1,6 @@
 package dev.petrov.service;
 
-import dev.petrov.converter.Converter;
+import dev.petrov.converter.ConverterLocation;
 import dev.petrov.dto.locationDto.Location;
 import dev.petrov.entity.LocationEntity;
 import dev.petrov.repository.LocationRepository;
@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class LocationsService {
+public class LocationService {
 
-    private static final Logger log = LoggerFactory.getLogger(LocationsService.class);
-    private final Converter converter;
+    private static final Logger log = LoggerFactory.getLogger(LocationService.class);
+    private final ConverterLocation converter;
     private final LocationRepository locationRepository;
 
-    public LocationsService(Converter converter, LocationRepository locationRepository) {
+    public LocationService(ConverterLocation converter, LocationRepository locationRepository) {
         this.converter = converter;
         this.locationRepository = locationRepository;
     }
@@ -51,8 +51,11 @@ public class LocationsService {
     public Location deleteLocation(Long locationId) {
         int countDeleteEntity = locationRepository.deleteLocationById(locationId);
 
-        checkLocationEntity(countDeleteEntity, "Не удалось удалить сущность, так как ее не существует");
-        log.info("Сущность с id = %d успешно удалена".formatted(locationId));
+        if (countDeleteEntity == 0) {
+            throw new EntityNotFoundException("Не удалось удалить сущность, так как ее не существует");
+        }
+
+        log.info("Сущность с id={} успешно удалена", locationId);
 
         return getLocationById(locationId);
     }
@@ -66,15 +69,12 @@ public class LocationsService {
                 locationToUpdate.description()
         );
 
-        checkLocationEntity(countUpdateEntity, "Не удалось обновить сущность, так как ее не существует");
-        log.info("Сущность с id = %d успешно обновлена".formatted(locationId));
+        if (countUpdateEntity == 0) {
+            throw new EntityNotFoundException("Не удалось обновить сущность, так как ее не существует");
+        }
+
+        log.info("Сущность с id={} успешно обновлена", locationId);
 
         return getLocationById(locationId);
-    }
-
-    private void checkLocationEntity(int countEntity, String message) {
-        if (countEntity == 0) {
-            throw new EntityNotFoundException(message);
-        }
     }
 }

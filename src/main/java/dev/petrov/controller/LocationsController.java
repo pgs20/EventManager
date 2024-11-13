@@ -1,8 +1,8 @@
 package dev.petrov.controller;
 
-import dev.petrov.converter.Converter;
+import dev.petrov.converter.ConverterLocation;
 import dev.petrov.dto.locationDto.LocationDto;
-import dev.petrov.service.LocationsService;
+import dev.petrov.service.LocationService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +15,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/locations")
 public class LocationsController {
 
-    private final Converter converter;
-    private final LocationsService locationsService;
+    private final ConverterLocation converter;
+    private final LocationService locationsService;
 
-    public LocationsController(Converter converter, LocationsService locationsService) {
+    public LocationsController(ConverterLocation converter, LocationService locationsService) {
         this.converter = converter;
         this.locationsService = locationsService;
     }

@@ -7,12 +7,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 
 @Service
-public class JwtAuthenticationService {
+public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenManager jwtTokenManager;
 
-    public JwtAuthenticationService(AuthenticationManager authenticationManager, JwtTokenManager jwtTokenManager) {
+    public AuthenticationService(AuthenticationManager authenticationManager, JwtTokenManager jwtTokenManager) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenManager = jwtTokenManager;
     }

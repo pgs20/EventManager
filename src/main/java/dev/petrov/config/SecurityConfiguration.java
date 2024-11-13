@@ -55,6 +55,12 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.GET, "/users/**").hasAuthority("ADMIN")
                                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/users/**").permitAll()
+
+                                .requestMatchers(HttpMethod.GET, "/v3/api-docs/**",
+                                        "/swagger-ui.html",
+                                        "/swagger-ui/**",
+                                        "/webjars/**",
+                                        "/event-manager-openapi.yaml").permitAll()
                                 .anyRequest().authenticated()
                 ).exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)

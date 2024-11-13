@@ -2,16 +2,16 @@ package dev.petrov.security.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.time.LocalDateTime;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.Date;
-import java.util.Optional;
 
 @Component
 public class JwtTokenManager {
@@ -21,7 +21,7 @@ public class JwtTokenManager {
     private final Long expirationTime;
 
     public JwtTokenManager(@Value("${jwt.lifetime}") Long expirationTime) {
-        this.key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        this.key = new SecretKeySpec(generationSecretKey().getBytes(), SignatureAlgorithm.HS256.getJcaName());
         this.expirationTime = expirationTime;
     }
 
@@ -42,5 +42,13 @@ public class JwtTokenManager {
                 .parseSignedClaims(jwt)
                 .getPayload()
                 .getSubject();
+    }
+
+    private String generationSecretKey() {
+        byte[] key = new byte[32];
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.nextBytes(key);
+
+        return Base64.getEncoder().encodeToString(key);
     }
 }

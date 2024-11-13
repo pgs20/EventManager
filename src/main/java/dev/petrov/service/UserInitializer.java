@@ -1,8 +1,11 @@
-package dev.petrov.repository;
+package dev.petrov.service;
 
 import dev.petrov.dto.usersDto.UserRole;
 import dev.petrov.entity.UserEntity;
+import dev.petrov.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,13 +21,8 @@ public class UserInitializer {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostConstruct
-    @Transactional
-    public void init() {
-        initializeUser();
-    }
-
-    private void initializeUser() {
+    @EventListener(ApplicationReadyEvent.class)
+    public void initializeUser() {
         if (!userRepository.existsByLogin("admin")) {
             userRepository.save(
                     new UserEntity(
