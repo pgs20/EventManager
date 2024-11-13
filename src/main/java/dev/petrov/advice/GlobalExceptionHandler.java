@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ErrorMessageResponse> handleGenericException(EntityNotFoundException e) {
+    public ResponseEntity<ErrorMessageResponse> handleEntityNotFoundException(EntityNotFoundException e) {
         ErrorMessageResponse errorDto = new ErrorMessageResponse(
                 "Сущность не найдена",
                 e.getMessage(),
@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
         log.error(errorDto.detailedMessage());
 
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.NOT_FOUND)
                 .body(errorDto);
     }
 
