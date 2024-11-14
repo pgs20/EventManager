@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 public class UserRegistrationDto {
 
     @NotBlank
-    @UniqueLogin
     private String login;
     @NotBlank
     private String password;

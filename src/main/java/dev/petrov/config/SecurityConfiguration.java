@@ -46,6 +46,8 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
+                                .requestMatchers(HttpMethod.POST, "/events").hasAuthority("USER")
+
                                 .requestMatchers(HttpMethod.GET, "/locations").hasAnyAuthority("ADMIN", "USER")
                                 .requestMatchers(HttpMethod.POST, "/locations").hasAuthority("ADMIN")
                                 .requestMatchers(HttpMethod.DELETE, "/locations/**").hasAuthority("ADMIN")

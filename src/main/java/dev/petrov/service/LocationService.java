@@ -26,7 +26,6 @@ public class LocationService {
     }
 
     public List<Location> getAllLocations() {
-        log.info("Получение всех локаций");
         return locationRepository.findAll()
                 .stream()
                 .map(converter::toDomain)
@@ -36,14 +35,12 @@ public class LocationService {
     @Transactional
     public Location createLocation(Location locationToCreate) {
         LocationEntity locationEntity = locationRepository.save(converter.toEntity(locationToCreate));
-        log.info("Создание локации: " + locationEntity);
 
         return converter.toDomain(locationEntity);
     }
 
     public Location getLocationById(Long locationId) {
         LocationEntity locationEntity = locationRepository.getById(locationId);
-        log.info("Получение локации по id: " + locationEntity);
 
         return converter.toDomain(locationEntity);
     }
@@ -54,8 +51,6 @@ public class LocationService {
         if (countDeleteEntity == 0) {
             throw new EntityNotFoundException("Не удалось удалить сущность, так как ее не существует");
         }
-
-        log.info("Сущность с id={} успешно удалена", locationId);
 
         return getLocationById(locationId);
     }
@@ -72,8 +67,6 @@ public class LocationService {
         if (countUpdateEntity == 0) {
             throw new EntityNotFoundException("Не удалось обновить сущность, так как ее не существует");
         }
-
-        log.info("Сущность с id={} успешно обновлена", locationId);
 
         return getLocationById(locationId);
     }

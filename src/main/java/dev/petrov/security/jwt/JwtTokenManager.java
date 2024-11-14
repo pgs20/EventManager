@@ -26,6 +26,7 @@ public class JwtTokenManager {
     }
 
     public String generateToken(String login) {
+        log.info("Генерация токена для {}", login);
         return Jwts
                 .builder()
                 .subject(login)
@@ -36,6 +37,7 @@ public class JwtTokenManager {
     }
 
     public String getLoginFromToken(String jwt) {
+        log.info("Получение логина из токена {}", jwt);
         return Jwts.parser()
                 .verifyWith(key)
                 .build()
