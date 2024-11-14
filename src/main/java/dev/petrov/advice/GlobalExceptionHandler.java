@@ -97,4 +97,19 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(errorDto);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorMessageResponse> handleIllegalArgumentException(IllegalArgumentException e) {
+        ErrorMessageResponse errorDto = new ErrorMessageResponse(
+                "Невалидные данные",
+                e.getMessage(),
+                LocalDateTime.now()
+        );
+
+        log.error(errorDto.detailedMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorDto);
+    }
 }

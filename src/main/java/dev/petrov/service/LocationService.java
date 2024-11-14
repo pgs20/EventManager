@@ -17,32 +17,32 @@ import java.util.stream.Collectors;
 public class LocationService {
 
     private static final Logger log = LoggerFactory.getLogger(LocationService.class);
-    private final ConverterLocation converter;
+    private final ConverterLocation converterLocation;
     private final LocationRepository locationRepository;
 
-    public LocationService(ConverterLocation converter, LocationRepository locationRepository) {
-        this.converter = converter;
+    public LocationService(ConverterLocation converterLocation, LocationRepository locationRepository) {
+        this.converterLocation = converterLocation;
         this.locationRepository = locationRepository;
     }
 
     public List<Location> getAllLocations() {
         return locationRepository.findAll()
                 .stream()
-                .map(converter::toDomain)
+                .map(converterLocation::toDomain)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public Location createLocation(Location locationToCreate) {
-        LocationEntity locationEntity = locationRepository.save(converter.toEntity(locationToCreate));
+        LocationEntity locationEntity = locationRepository.save(converterLocation.toEntity(locationToCreate));
 
-        return converter.toDomain(locationEntity);
+        return converterLocation.toDomain(locationEntity);
     }
 
     public Location getLocationById(Long locationId) {
         LocationEntity locationEntity = locationRepository.getById(locationId);
 
-        return converter.toDomain(locationEntity);
+        return converterLocation.toDomain(locationEntity);
     }
 
     public Location deleteLocation(Long locationId) {
@@ -69,5 +69,12 @@ public class LocationService {
         }
 
         return getLocationById(locationId);
+    }
+
+    public Location findLocationById(Long locationId) {
+        return converterLocation.toDomain(
+                locationRepository.findById(locationId)
+                        .orElseThrow(() -> new IllegalArgumentException("Локация не найдена"))
+        );
     }
 }

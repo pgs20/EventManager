@@ -7,6 +7,7 @@ import dev.petrov.dto.usersDto.UserRole;
 import dev.petrov.entity.UserEntity;
 import dev.petrov.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -48,6 +49,13 @@ public class UserService {
         } catch (EntityNotFoundException ex) {
             throw new EntityNotFoundException("Пользователь с id=" + userId + " не найден");
         }
+    }
+
+    public User findUserByLogin(String login) {
+        return converterUser.toDomain(
+                userRepository.findUserByLogin(login)
+                        .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"))
+        );
     }
 
 }
