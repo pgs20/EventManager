@@ -1,7 +1,6 @@
 package dev.petrov.security.jwt;
 
 import dev.petrov.dto.usersDto.User;
-import dev.petrov.repository.UserRepository;
 import dev.petrov.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

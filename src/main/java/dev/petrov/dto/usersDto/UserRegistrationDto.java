@@ -1,6 +1,5 @@
 package dev.petrov.dto.usersDto;
 
-import dev.petrov.validator.UniqueLogin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
