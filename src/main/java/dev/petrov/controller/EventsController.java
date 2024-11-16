@@ -40,4 +40,13 @@ public class EventsController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(eventService.deleteEventById(eventId));
     }
+
+    @GetMapping("/{eventId}")
+    public ResponseEntity<EventDto> getEventById(@PathVariable Integer eventId) {
+        return ResponseEntity.ok().body(
+                converterEvent.toDto(
+                        eventService.getEventById(eventId)
+                )
+        );
+    }
 }

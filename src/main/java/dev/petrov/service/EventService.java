@@ -9,10 +9,13 @@ import dev.petrov.dto.usersDto.User;
 import dev.petrov.dto.usersDto.UserRole;
 import dev.petrov.entity.EventEntity;
 import dev.petrov.repository.EventRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class EventService {
@@ -56,9 +59,20 @@ public class EventService {
             throw new IllegalArgumentException("Мероприятия с id=" + eventId + " может удалить только ADMIN либо создатель мероприятия");
         }
 
+        if (event.getStatus().equals(EventStatus.STARTED)) {
+            throw new IllegalArgumentException("Мероприятие нельзя удалить, оно уже началось");
+        }
+
         event.setStatus(EventStatus.CANCELLED.name());
         eventRepository.save(event);
 
         return new MessageResponse("Мероприятие успешно удалено");
+    }
+
+    public Event getEventById(Integer eventId) {
+        return converterEvent.toDomain(
+                Optional.of(eventRepository.getById(eventId))
+                        .orElseThrow(() -> new EntityNotFoundException("Мероприятие с id = " + eventId + " не найдено"))
+        );
     }
 }
