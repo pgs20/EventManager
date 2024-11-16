@@ -1,12 +1,12 @@
 package dev.petrov.converter;
 
-import dev.petrov.dto.Location;
-import dev.petrov.dto.LocationDto;
+import dev.petrov.dto.locationDto.Location;
+import dev.petrov.dto.locationDto.LocationDto;
 import dev.petrov.entity.LocationEntity;
 import org.springframework.stereotype.Component;
 
 @Component
-public class Converter {
+public class ConverterLocation {
     public LocationDto toDto(Location location) {
         return new LocationDto(
                 location.id(),

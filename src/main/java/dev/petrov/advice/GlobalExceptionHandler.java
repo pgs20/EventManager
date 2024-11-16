@@ -1,13 +1,13 @@
 package dev.petrov.advice;
 
-import dev.petrov.dto.ServerErrorDto;
+import dev.petrov.advice.exception.UserAlreadyExistsException;
+import dev.petrov.dto.ErrorMessageResponse;
 import jakarta.persistence.EntityNotFoundException;
-import org.hibernate.exception.DataException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,8 +21,8 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ServerErrorDto> handleGenericException(EntityNotFoundException e) {
-        ServerErrorDto errorDto = new ServerErrorDto(
+    public ResponseEntity<ErrorMessageResponse> handleEntityNotFoundException(EntityNotFoundException e) {
+        ErrorMessageResponse errorDto = new ErrorMessageResponse(
                 "Сущность не найдена",
                 e.getMessage(),
                 LocalDateTime.now()
@@ -31,19 +31,47 @@ public class GlobalExceptionHandler {
         log.error(errorDto.detailedMessage());
 
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.NOT_FOUND)
                 .body(errorDto);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ServerErrorDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        ServerErrorDto errorDto = new ServerErrorDto(
+    public ResponseEntity<ErrorMessageResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        ErrorMessageResponse errorDto = new ErrorMessageResponse(
                 "Невалидные данные",
                 e.getBindingResult()
                         .getFieldErrors()
                         .stream()
                         .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                        .collect(Collectors.joining()),
+                        .collect(Collectors.joining(", ")),
+                LocalDateTime.now()
+        );
+
+        log.error(errorDto.detailedMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorMessageResponse> handleAuthenticationException(AuthenticationException ex) {
+        ErrorMessageResponse errorDto = new ErrorMessageResponse(
+                "Пользователь не прошел аутентификацию",
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorMessageResponse> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
+        ErrorMessageResponse errorDto = new ErrorMessageResponse(
+                "Невалидные данные",
+                e.getMessage(),
                 LocalDateTime.now()
         );
 

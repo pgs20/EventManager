@@ -1,9 +1,10 @@
 package dev.petrov.controller;
 
-import dev.petrov.converter.Converter;
-import dev.petrov.dto.LocationDto;
-import dev.petrov.service.LocationsService;
+import dev.petrov.converter.ConverterLocation;
+import dev.petrov.dto.locationDto.LocationDto;
+import dev.petrov.service.LocationService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,10 +15,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/locations")
 public class LocationsController {
 
-    private final Converter converter;
-    private final LocationsService locationsService;
+    private final ConverterLocation converter;
+    private final LocationService locationsService;
 
-    public LocationsController(Converter converter, LocationsService locationsService) {
+    public LocationsController(ConverterLocation converter, LocationService locationsService) {
         this.converter = converter;
         this.locationsService = locationsService;
     }
@@ -33,22 +34,45 @@ public class LocationsController {
     }
 
     @PostMapping
-    public LocationDto createLocation(@Valid @RequestBody LocationDto locationToCreate) {
-        return converter.toDto(locationsService.createLocation(converter.toDomain(locationToCreate)));
+    public ResponseEntity<LocationDto> createLocation(@Valid @RequestBody LocationDto locationToCreate) {
+        return ResponseEntity.ok().body(
+                converter.toDto(
+                        locationsService.createLocation(
+                                converter.toDomain(
+                                        locationToCreate)
+                        )
+                )
+        );
     }
 
     @DeleteMapping("/{locationId}")
-    public LocationDto deleteLocation(@PathVariable Long locationId) {
-        return converter.toDto(locationsService.deleteLocation(locationId));
+    public ResponseEntity<LocationDto> deleteLocation(@PathVariable Long locationId) {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+                converter.toDto(
+                        locationsService.deleteLocation(
+                                locationId)
+                )
+        );
     }
 
     @GetMapping("/{locationId}")
-    public LocationDto getLocationById(@PathVariable Long locationId) {
-        return converter.toDto(locationsService.getLocationById(locationId));
+    public ResponseEntity<LocationDto> getLocationById(@PathVariable Long locationId) {
+        return ResponseEntity.ok().body(
+                converter.toDto(
+                        locationsService.getLocationById(
+                                locationId)
+                )
+        );
     }
 
     @PutMapping("/{locationId}")
-    public LocationDto updateLocationById(@PathVariable Long locationId, @Valid @RequestBody LocationDto locationToUpdate) {
-        return converter.toDto(locationsService.updateLocationById(locationId, converter.toDomain(locationToUpdate)));
+    public ResponseEntity<LocationDto> updateLocationById(@PathVariable Long locationId, @Valid @RequestBody LocationDto locationToUpdate) {
+        return ResponseEntity.ok().body(
+                converter.toDto(
+                        locationsService.updateLocationById(
+                                locationId, converter.toDomain(locationToUpdate)
+                        )
+                )
+        );
     }
 }
