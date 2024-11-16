@@ -9,8 +9,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.SecureRandom;
-import java.util.Base64;
 import java.util.Date;
 
 @Component
@@ -20,12 +18,13 @@ public class JwtTokenManager {
     private final SecretKey key;
     private final Long expirationTime;
 
-    public JwtTokenManager(@Value("${jwt.lifetime}") Long expirationTime) {
-        this.key = new SecretKeySpec(generationSecretKey().getBytes(), SignatureAlgorithm.HS256.getJcaName());
+    public JwtTokenManager(@Value("${jwt.secret-key}") String key, @Value("${jwt.lifetime}") Long expirationTime) {
+        this.key = new SecretKeySpec(key.getBytes(), SignatureAlgorithm.HS256.getJcaName());
         this.expirationTime = expirationTime;
     }
 
     public String generateToken(String login) {
+        log.info("Генерация ключа для {}", login);
         return Jwts
                 .builder()
                 .subject(login)
@@ -36,19 +35,12 @@ public class JwtTokenManager {
     }
 
     public String getLoginFromToken(String jwt) {
+        log.info("Извлечение информации из токена");
         return Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(jwt)
                 .getPayload()
                 .getSubject();
-    }
-
-    private String generationSecretKey() {
-        byte[] key = new byte[32];
-        SecureRandom secureRandom = new SecureRandom();
-        secureRandom.nextBytes(key);
-
-        return Base64.getEncoder().encodeToString(key);
     }
 }

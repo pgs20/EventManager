@@ -41,13 +41,10 @@ public class UserService {
     }
 
     public User getInfoUserById(Integer userId) {
-        try {
-            UserEntity userEntity = userRepository.getById(userId);
+        UserEntity userEntity = Optional.of(userRepository.getById(userId))
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь с id=" + userId + " не найден"));
 
-            return converterUser.toDomain(userEntity);
-        } catch (EntityNotFoundException ex) {
-            throw new EntityNotFoundException("Пользователь с id=" + userId + " не найден");
-        }
+        return converterUser.toDomain(userEntity);
     }
 
 }
