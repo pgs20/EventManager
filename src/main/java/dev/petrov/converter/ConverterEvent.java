@@ -1,23 +1,23 @@
 package dev.petrov.converter;
 
 import dev.petrov.dto.event.Event;
-import dev.petrov.dto.event.EventCreateRequestDto;
 import dev.petrov.dto.event.EventDto;
 import dev.petrov.dto.event.EventStatus;
+import dev.petrov.dto.event.request.EventRequestDto;
 import dev.petrov.entity.EventEntity;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConverterEvent {
 
-    public Event toDomain(EventCreateRequestDto eventCreateRequestDto) {
+    public Event toDomain(EventRequestDto createEvent) {
         return new Event(
-                eventCreateRequestDto.getName(),
-                eventCreateRequestDto.getMaxPlaces(),
-                eventCreateRequestDto.getDate(),
-                eventCreateRequestDto.getCost(),
-                eventCreateRequestDto.getDuration(),
-                eventCreateRequestDto.getLocationId()
+                createEvent.getName(),
+                createEvent.getMaxPlaces(),
+                createEvent.getDate(),
+                createEvent.getCost(),
+                createEvent.getDuration(),
+                createEvent.getLocationId()
         );
     }
 

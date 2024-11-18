@@ -87,4 +87,32 @@ public class EventEntity {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setOwnerId(String ownerId) {
+        this.ownerId = ownerId;
+    }
+
+    public void setMaxPlaces(Integer maxPlaces) {
+        this.maxPlaces = maxPlaces;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setCost(Integer cost) {
+        this.cost = cost;
+    }
+
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
+
+    public void setLocationId(Long locationId) {
+        this.locationId = locationId;
+    }
 }

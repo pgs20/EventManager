@@ -2,11 +2,11 @@ package dev.petrov.controller;
 
 import dev.petrov.converter.ConverterEvent;
 import dev.petrov.dto.MessageResponse;
-import dev.petrov.dto.event.EventCreateRequestDto;
+import dev.petrov.dto.event.request.EventCreateRequestDto;
 import dev.petrov.dto.event.EventDto;
+import dev.petrov.dto.event.request.EventUpdateRequestDto;
 import dev.petrov.service.EventService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,6 +46,15 @@ public class EventsController {
         return ResponseEntity.ok().body(
                 converterEvent.toDto(
                         eventService.getEventById(eventId)
+                )
+        );
+    }
+
+    @PutMapping("/{eventId}")
+    public ResponseEntity<EventDto> updateEventById(@PathVariable Integer eventId, @Valid @RequestBody EventUpdateRequestDto updateEvent) {
+        return ResponseEntity.ok().body(
+                converterEvent.toDto(
+                        eventService.updateEventById(eventId, converterEvent.toDomain(updateEvent))
                 )
         );
     }

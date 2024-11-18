@@ -14,13 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 public class EventService {
 
-    private static final Logger log = LoggerFactory.getLogger(EventService.class);
     private final EventRepository eventRepository;
     private final ConverterEvent converterEvent;
     private final LocationService locationService;
@@ -31,6 +31,7 @@ public class EventService {
         this.locationService = locationService;
     }
 
+    @Transactional
     public Event createEvent(Event event) {
         Location location = locationService.findLocationById(event.getLocationId());
 
@@ -47,21 +48,11 @@ public class EventService {
         return converterEvent.toDomain(eventEntity);
     }
 
+    @Transactional
     public MessageResponse deleteEventById(Integer eventId) {
-        if (!eventRepository.existsById(eventId)) {
-            throw new IllegalArgumentException("Мероприятия с id=" + eventId + " не существует");
-        }
-
-        EventEntity event = eventRepository.getById(eventId);
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info(" user id = {}, event owner id = {}", user.getId(), event.getOwnerId());
-        if (!(user.getRole() == UserRole.ADMIN || user.getId().toString().equals(event.getOwnerId()))) {
-            throw new IllegalArgumentException("Мероприятия с id=" + eventId + " может удалить только ADMIN либо создатель мероприятия");
-        }
 
-        if (event.getStatus().equals(EventStatus.STARTED)) {
-            throw new IllegalArgumentException("Мероприятие нельзя удалить, оно уже началось");
-        }
+        EventEntity event = validateBeforeAction(eventId, user);
 
         event.setStatus(EventStatus.CANCELLED.name());
         eventRepository.save(event);
@@ -74,5 +65,47 @@ public class EventService {
                 Optional.of(eventRepository.getById(eventId))
                         .orElseThrow(() -> new EntityNotFoundException("Мероприятие с id = " + eventId + " не найдено"))
         );
+    }
+
+    @Transactional
+    public Event updateEventById(Integer eventId, Event updateEvent) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        EventEntity event = validateBeforeAction(eventId, user);
+
+        if (
+                event.getName().equals(updateEvent.getName()) ||
+                event.getMaxPlaces().equals(updateEvent.getMaxPlaces()) ||
+                event.getDate().equals(updateEvent.getDate()) ||
+                event.getCost().equals(updateEvent.getCost()) ||
+                event.getDuration().equals(updateEvent.getDuration()) ||
+                event.getLocationId().equals(updateEvent.getLocationId())
+        ) {
+            throw new IllegalArgumentException("Ошибка: необходимо ввести новые данные для обновления");
+        }
+
+        event.setName(updateEvent.getName());
+        event.setMaxPlaces(updateEvent.getMaxPlaces());
+        event.setDate(updateEvent.getDate());
+        event.setCost(updateEvent.getCost());
+        event.setDuration(updateEvent.getDuration());
+        event.setLocationId(updateEvent.getLocationId());
+
+        return converterEvent.toDomain(eventRepository.save(event));
+    }
+
+    private EventEntity validateBeforeAction(Integer eventId, User user) {
+        EventEntity event = Optional.of(eventRepository.getById(eventId))
+                .orElseThrow(() -> new EntityNotFoundException("Мероприятия с id=" + eventId + " не существует"));
+
+        if (!(user.getRole() == UserRole.ADMIN || user.getId().toString().equals(event.getOwnerId()))) {
+            throw new IllegalArgumentException("Ошибка: доступ имеет только ADMIN либо создатель мероприятия");
+        }
+
+        if (event.getStatus().equals(EventStatus.STARTED)) {
+            throw new IllegalArgumentException("Ошибка: мероприятие уже началось");
+        }
+
+        return event;
     }
 }
