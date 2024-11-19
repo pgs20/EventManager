@@ -4,12 +4,16 @@ import dev.petrov.converter.ConverterEvent;
 import dev.petrov.dto.MessageResponse;
 import dev.petrov.dto.event.request.EventCreateRequestDto;
 import dev.petrov.dto.event.EventDto;
+import dev.petrov.dto.event.request.EventSearchRequestDto;
 import dev.petrov.dto.event.request.EventUpdateRequestDto;
 import dev.petrov.service.EventService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/events")
@@ -56,6 +60,16 @@ public class EventsController {
                 converterEvent.toDto(
                         eventService.updateEventById(eventId, converterEvent.toDomain(updateEvent))
                 )
+        );
+    }
+
+    @PostMapping("/search")
+    public ResponseEntity<List<EventDto>> searchEventByFilter(@RequestBody EventSearchRequestDto eventSearchDto) {
+        return ResponseEntity.ok().body(
+                eventService.searchEventByFilter(eventSearchDto)
+                        .stream()
+                        .map(converterEvent::toDto)
+                        .collect(Collectors.toList())
         );
     }
 }

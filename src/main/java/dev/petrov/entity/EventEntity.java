@@ -1,9 +1,6 @@
 package dev.petrov.entity;
 
-import dev.petrov.dto.event.EventStatus;
 import jakarta.persistence.*;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "events")

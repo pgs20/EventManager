@@ -4,19 +4,21 @@ import dev.petrov.converter.ConverterEvent;
 import dev.petrov.dto.MessageResponse;
 import dev.petrov.dto.event.Event;
 import dev.petrov.dto.event.EventStatus;
+import dev.petrov.dto.event.request.EventSearchRequestDto;
 import dev.petrov.dto.locationDto.Location;
 import dev.petrov.dto.usersDto.User;
 import dev.petrov.dto.usersDto.UserRole;
 import dev.petrov.entity.EventEntity;
 import dev.petrov.repository.EventRepository;
+import dev.petrov.specification.EventSpecification;
 import jakarta.persistence.EntityNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -75,11 +77,11 @@ public class EventService {
 
         if (
                 event.getName().equals(updateEvent.getName()) ||
-                event.getMaxPlaces().equals(updateEvent.getMaxPlaces()) ||
-                event.getDate().equals(updateEvent.getDate()) ||
-                event.getCost().equals(updateEvent.getCost()) ||
-                event.getDuration().equals(updateEvent.getDuration()) ||
-                event.getLocationId().equals(updateEvent.getLocationId())
+                        event.getMaxPlaces().equals(updateEvent.getMaxPlaces()) ||
+                        event.getDate().equals(updateEvent.getDate()) ||
+                        event.getCost().equals(updateEvent.getCost()) ||
+                        event.getDuration().equals(updateEvent.getDuration()) ||
+                        event.getLocationId().equals(updateEvent.getLocationId())
         ) {
             throw new IllegalArgumentException("Ошибка: необходимо ввести новые данные для обновления");
         }
@@ -92,6 +94,15 @@ public class EventService {
         event.setLocationId(updateEvent.getLocationId());
 
         return converterEvent.toDomain(eventRepository.save(event));
+    }
+
+    public List<Event> searchEventByFilter(EventSearchRequestDto searchRequestDto) {
+        return Optional.of(eventRepository.findAll(
+                        EventSpecification.filterByDto(searchRequestDto)
+                )).orElseThrow(() -> new EntityNotFoundException("Мероприятий по заданному фильтру не найдено"))
+                .stream()
+                .map(converterEvent::toDomain)
+                .collect(Collectors.toList());
     }
 
     private EventEntity validateBeforeAction(Integer eventId, User user) {
