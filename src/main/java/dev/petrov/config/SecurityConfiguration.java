@@ -61,6 +61,7 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.GET, "/events/{eventId}").hasAnyAuthority("ADMIN", "USER")
                                 .requestMatchers(HttpMethod.PUT, "/events/{eventId}").hasAnyAuthority("ADMIN", "USER")
                                 .requestMatchers(HttpMethod.POST, "/events/search").hasAnyAuthority("ADMIN", "USER")
+                                .requestMatchers(HttpMethod.GET, "/events/my").hasAuthority("USER")
 
                                 .requestMatchers(HttpMethod.GET, "/v3/api-docs/**",
                                         "/swagger-ui.html",

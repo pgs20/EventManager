@@ -68,4 +68,13 @@ public class EventSpecification {
             return predicate;
         };
     }
+
+    public static Specification<EventEntity> filterByOwnerId(String ownerId) {
+        return ((root, query, criteriaBuilder) -> {
+            Predicate predicate = criteriaBuilder.conjunction();
+
+            return criteriaBuilder.and(predicate,
+                    criteriaBuilder.equal(root.get("ownerId"), ownerId));
+        });
+    }
 }

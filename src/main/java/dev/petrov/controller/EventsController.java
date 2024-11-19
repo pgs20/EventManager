@@ -72,4 +72,14 @@ public class EventsController {
                         .collect(Collectors.toList())
         );
     }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<EventDto>> searchEventByOwnerId() {
+        return ResponseEntity.ok().body(
+                eventService.searchEventByOwnerId()
+                        .stream()
+                        .map(converterEvent::toDto)
+                        .collect(Collectors.toList())
+        );
+    }
 }

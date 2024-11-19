@@ -105,6 +105,17 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
+    public List<Event> searchEventByOwnerId() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return Optional.of(eventRepository.findAll(EventSpecification.filterByOwnerId(user.getId().toString())))
+                .filter(eventEntities -> !eventEntities.isEmpty())
+                .map(eventEntities -> eventEntities.stream()
+                        .map(converterEvent::toDomain)
+                        .collect(Collectors.toList()))
+                .orElseThrow(() -> new EntityNotFoundException("Данный пользователь мероприятий не создавал"));
+    }
+
     private EventEntity validateBeforeAction(Integer eventId, User user) {
         EventEntity event = Optional.of(eventRepository.getById(eventId))
                 .orElseThrow(() -> new EntityNotFoundException("Мероприятия с id=" + eventId + " не существует"));
