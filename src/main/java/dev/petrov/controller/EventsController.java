@@ -82,4 +82,10 @@ public class EventsController {
                         .collect(Collectors.toList())
         );
     }
+
+    @PostMapping("/registrations/{eventId}")
+    public ResponseEntity<MessageResponse> registerForEvent(@PathVariable Integer eventId) {
+        return ResponseEntity.ok()
+                .body(eventService.registerUserForEvent(eventId));
+    }
 }

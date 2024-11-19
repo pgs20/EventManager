@@ -10,6 +10,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Optional;
 
 @Service
@@ -26,6 +28,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional
     public User registrationUser(User user) {
         if (userRepository.existsByLogin(user.getLogin())) {
             throw new UserAlreadyExistsException("Пользователь с логином " + user.getLogin() + " уже существует");

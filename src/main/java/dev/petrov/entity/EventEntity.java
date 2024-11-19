@@ -2,6 +2,9 @@ package dev.petrov.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "events")
 public class EventEntity {
@@ -26,6 +29,8 @@ public class EventEntity {
     private Long locationId;
     @Column(name = "status_event")
     private String status;
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY)
+    private List<RegistrationEntity> registrationEntities = new ArrayList<>();
 
     public EventEntity() {
     }
@@ -34,6 +39,7 @@ public class EventEntity {
         this.name = name;
         this.ownerId = ownerId;
         this.maxPlaces = maxPlaces;
+        this.occupiedPlaces = registrationEntities.size();
         this.date = date;
         this.cost = cost;
         this.duration = duration;
@@ -57,7 +63,7 @@ public class EventEntity {
         return maxPlaces;
     }
 
-    public Integer getOccupiedPlaces() {
+    public int getOccupiedPlaces() {
         return occupiedPlaces;
     }
 
@@ -111,5 +117,13 @@ public class EventEntity {
 
     public void setLocationId(Long locationId) {
         this.locationId = locationId;
+    }
+
+    public List<RegistrationEntity> getRegistrationEntities() {
+        return registrationEntities;
+    }
+
+    public void setOccupiedPlaces(Integer occupiedPlaces) {
+        this.occupiedPlaces = occupiedPlaces;
     }
 }

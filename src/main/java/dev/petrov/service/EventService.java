@@ -1,6 +1,7 @@
 package dev.petrov.service;
 
 import dev.petrov.converter.ConverterEvent;
+import dev.petrov.converter.ConverterUser;
 import dev.petrov.dto.MessageResponse;
 import dev.petrov.dto.event.Event;
 import dev.petrov.dto.event.EventStatus;
@@ -9,7 +10,11 @@ import dev.petrov.dto.locationDto.Location;
 import dev.petrov.dto.usersDto.User;
 import dev.petrov.dto.usersDto.UserRole;
 import dev.petrov.entity.EventEntity;
+import dev.petrov.entity.RegistrationEntity;
+import dev.petrov.entity.UserEntity;
 import dev.petrov.repository.EventRepository;
+import dev.petrov.repository.RegistrationRepository;
+import dev.petrov.repository.UserRepository;
 import dev.petrov.specification.EventSpecification;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,13 +29,25 @@ import java.util.stream.Collectors;
 public class EventService {
 
     private final EventRepository eventRepository;
+    private final RegistrationRepository registrationRepository;
     private final ConverterEvent converterEvent;
+    private final ConverterUser converterUser;
     private final LocationService locationService;
+    private final UserRepository userRepository;
 
-    public EventService(EventRepository eventRepository, ConverterEvent converterEvent, LocationService locationService) {
+    public EventService(EventRepository eventRepository,
+                        RegistrationRepository registrationRepository,
+                        ConverterEvent converterEvent,
+                        ConverterUser converterUser,
+                        LocationService locationService,
+                        UserRepository userRepository)
+    {
         this.eventRepository = eventRepository;
+        this.registrationRepository = registrationRepository;
         this.converterEvent = converterEvent;
+        this.converterUser = converterUser;
         this.locationService = locationService;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -43,7 +60,7 @@ public class EventService {
 
         event.setStatus(EventStatus.WAIT_START);
         event.setOwnerId(((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId().toString());
-        event.setOccupiedPlaces(Integer.valueOf(0));
+        event.setOccupiedPlaces(0);
 
         EventEntity eventEntity = eventRepository.save(converterEvent.toEntity(event));
 
@@ -116,6 +133,34 @@ public class EventService {
                 .orElseThrow(() -> new EntityNotFoundException("Данный пользователь мероприятий не создавал"));
     }
 
+    @Transactional
+    public MessageResponse registerUserForEvent(Integer eventId) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+
+        UserEntity userEntity = userRepository.getById(user.getId());
+        EventEntity event = Optional.of(eventRepository.getById(eventId))
+                .orElseThrow(() -> new EntityNotFoundException("Мероприятия с id=" + eventId + " не существует"));
+
+        if (event.getStatus().equals(EventStatus.CANCELLED.name()) || event.getStatus().equals(EventStatus.FINISHED.name())) {
+            throw new IllegalArgumentException("Ошибка: мероприятие отменено или закончилось");
+        }
+
+        if (isUserRegistered(event, userEntity)) {
+            throw new IllegalArgumentException("Ошибка: вы уже зарегистрированы на это мероприятие");
+        }
+
+        if (event.getOccupiedPlaces() >= event.getMaxPlaces()) {
+            throw new IllegalArgumentException("Ошибка: нет свободных мест на мероприятие");
+        }
+
+        event.setOccupiedPlaces(event.getOccupiedPlaces() + 1);
+        registrationRepository.save(new RegistrationEntity(event, userEntity));
+        eventRepository.save(event);
+
+        return new MessageResponse("Успешная регистрация на мероприятие");
+    }
+
     private EventEntity validateBeforeAction(Integer eventId, User user) {
         EventEntity event = Optional.of(eventRepository.getById(eventId))
                 .orElseThrow(() -> new EntityNotFoundException("Мероприятия с id=" + eventId + " не существует"));
@@ -124,10 +169,14 @@ public class EventService {
             throw new IllegalArgumentException("Ошибка: доступ имеет только ADMIN либо создатель мероприятия");
         }
 
-        if (event.getStatus().equals(EventStatus.STARTED)) {
+        if (event.getStatus().equals(EventStatus.STARTED.name())) {
             throw new IllegalArgumentException("Ошибка: мероприятие уже началось");
         }
 
         return event;
+    }
+
+    private Boolean isUserRegistered(EventEntity event, UserEntity user) {
+        return registrationRepository.findByEventAndUser(event, user).isPresent();
     }
 }
