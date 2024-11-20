@@ -10,8 +10,10 @@ public class RegistrationEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
+    @JoinColumn(name = "event_id")
     private EventEntity event;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @JoinColumn(name = "user_id")
     private UserEntity user;
 
     public RegistrationEntity() {

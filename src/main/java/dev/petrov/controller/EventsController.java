@@ -94,4 +94,13 @@ public class EventsController {
         return ResponseEntity.ok()
                 .body(eventService.cancelRegistration(eventId));
     }
+
+    @GetMapping("/registrations/my")
+    public ResponseEntity<List<EventDto>> getEventUserIsReg() {
+        return ResponseEntity.ok().body(
+                eventService.getEventsUserIsRegistered()
+                        .stream()
+                        .map(converterEvent::toDto)
+                        .collect(Collectors.toList()));
+    }
 }

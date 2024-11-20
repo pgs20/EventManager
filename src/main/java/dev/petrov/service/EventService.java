@@ -37,8 +37,7 @@ public class EventService {
                         RegistrationRepository registrationRepository,
                         ConverterEvent converterEvent,
                         LocationService locationService,
-                        UserRepository userRepository)
-    {
+                        UserRepository userRepository) {
         this.eventRepository = eventRepository;
         this.registrationRepository = registrationRepository;
         this.converterEvent = converterEvent;
@@ -142,15 +141,17 @@ public class EventService {
             throw new IllegalArgumentException("Ошибка: мероприятие отменено или закончилось");
         }
 
-        RegistrationEntity registration = registrationRepository.findByEventAndUser(event, userEntity)
-                .orElseThrow(() -> new IllegalArgumentException("Ошибка: вы уже зарегистрированы на это мероприятие"));
+        Optional<RegistrationEntity> registration = registrationRepository.findByEventAndUser(event, userEntity);
+        if (registration.isPresent()) {
+            throw new IllegalArgumentException("Ошибка: вы уже зарегистрированы на это мероприятие");
+        }
 
         if (event.getOccupiedPlaces() >= event.getMaxPlaces()) {
             throw new IllegalArgumentException("Ошибка: нет свободных мест на мероприятие");
         }
 
         event.setOccupiedPlaces(event.getOccupiedPlaces() + 1);
-        registrationRepository.save(registration);
+        registrationRepository.save(new RegistrationEntity(event, userEntity));
         eventRepository.save(event);
 
         return new MessageResponse("Успешная регистрация на мероприятие");
@@ -176,6 +177,17 @@ public class EventService {
         registrationRepository.delete(registration);
 
         return new MessageResponse("Успешная отмена регистрации на мероприятие");
+    }
+
+    public List<Event> getEventsUserIsRegistered() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return Optional.of(registrationRepository.findEventsByUserId(user.getId()))
+                .filter(eventEntities -> !eventEntities.isEmpty())
+                .map(eventEntities -> eventEntities.stream()
+                        .map(converterEvent::toDomain)
+                        .collect(Collectors.toList()))
+                .orElseThrow(() -> new EntityNotFoundException("Пользователь не зарегистрирован на мероприятия"));
     }
 
     private EventEntity validateBeforeAction(Integer eventId, User user) {
