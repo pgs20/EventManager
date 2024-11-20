@@ -1,7 +1,6 @@
 package dev.petrov.service;
 
 import dev.petrov.converter.ConverterEvent;
-import dev.petrov.converter.ConverterUser;
 import dev.petrov.dto.MessageResponse;
 import dev.petrov.dto.event.Event;
 import dev.petrov.dto.event.EventStatus;
@@ -31,21 +30,18 @@ public class EventService {
     private final EventRepository eventRepository;
     private final RegistrationRepository registrationRepository;
     private final ConverterEvent converterEvent;
-    private final ConverterUser converterUser;
     private final LocationService locationService;
     private final UserRepository userRepository;
 
     public EventService(EventRepository eventRepository,
                         RegistrationRepository registrationRepository,
                         ConverterEvent converterEvent,
-                        ConverterUser converterUser,
                         LocationService locationService,
                         UserRepository userRepository)
     {
         this.eventRepository = eventRepository;
         this.registrationRepository = registrationRepository;
         this.converterEvent = converterEvent;
-        this.converterUser = converterUser;
         this.locationService = locationService;
         this.userRepository = userRepository;
     }
@@ -146,19 +142,40 @@ public class EventService {
             throw new IllegalArgumentException("Ошибка: мероприятие отменено или закончилось");
         }
 
-        if (isUserRegistered(event, userEntity)) {
-            throw new IllegalArgumentException("Ошибка: вы уже зарегистрированы на это мероприятие");
-        }
+        RegistrationEntity registration = registrationRepository.findByEventAndUser(event, userEntity)
+                .orElseThrow(() -> new IllegalArgumentException("Ошибка: вы уже зарегистрированы на это мероприятие"));
 
         if (event.getOccupiedPlaces() >= event.getMaxPlaces()) {
             throw new IllegalArgumentException("Ошибка: нет свободных мест на мероприятие");
         }
 
         event.setOccupiedPlaces(event.getOccupiedPlaces() + 1);
-        registrationRepository.save(new RegistrationEntity(event, userEntity));
+        registrationRepository.save(registration);
         eventRepository.save(event);
 
         return new MessageResponse("Успешная регистрация на мероприятие");
+    }
+
+    @Transactional
+    public MessageResponse cancelRegistration(Integer eventId) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+
+        UserEntity userEntity = userRepository.getById(user.getId());
+        EventEntity event = Optional.of(eventRepository.getById(eventId))
+                .orElseThrow(() -> new EntityNotFoundException("Мероприятия с id=" + eventId + " не существует"));
+
+        if (event.getStatus().equals(EventStatus.STARTED.name()) || event.getStatus().equals(EventStatus.FINISHED.name())) {
+            throw new IllegalArgumentException("Ошибка: мероприятие уже идет или закончилось");
+        }
+
+        RegistrationEntity registration = registrationRepository.findByEventAndUser(event, userEntity)
+                .orElseThrow(() -> new IllegalArgumentException("Ошибка: вы уже отменили регистрацию на это мероприятие"));
+
+        event.setOccupiedPlaces(event.getOccupiedPlaces() - 1);
+        registrationRepository.delete(registration);
+
+        return new MessageResponse("Успешная отмена регистрации на мероприятие");
     }
 
     private EventEntity validateBeforeAction(Integer eventId, User user) {
@@ -174,9 +191,5 @@ public class EventService {
         }
 
         return event;
-    }
-
-    private Boolean isUserRegistered(EventEntity event, UserEntity user) {
-        return registrationRepository.findByEventAndUser(event, user).isPresent();
     }
 }

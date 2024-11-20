@@ -88,4 +88,10 @@ public class EventsController {
         return ResponseEntity.ok()
                 .body(eventService.registerUserForEvent(eventId));
     }
+
+    @DeleteMapping("/registrations/cancel/{eventId}")
+    public ResponseEntity<MessageResponse> cancelRegistrationForEvent(@PathVariable Integer eventId) {
+        return ResponseEntity.ok()
+                .body(eventService.cancelRegistration(eventId));
+    }
 }
