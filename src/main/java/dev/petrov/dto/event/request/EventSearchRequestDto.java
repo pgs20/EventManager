@@ -13,7 +13,7 @@ public class EventSearchRequestDto {
     private Integer durationMin;
     private Integer durationMax;
     private Long locationId;
-    private EventStatus eventStatus;
+    private String eventStatus;
 
     public String getName() {
         return name;
@@ -56,6 +56,20 @@ public class EventSearchRequestDto {
     }
 
     public EventStatus getEventStatus() {
-        return eventStatus;
+        return eventStatus == null || eventStatus.isEmpty() ? null : EventStatus.valueOf(eventStatus.toUpperCase());
+    }
+
+    public boolean isFilterEmpty() {
+        return durationMax == 0 &&
+                placesMin == 0 &&
+                locationId == 0 &&
+                (eventStatus == null || eventStatus.isEmpty()) &&
+                (name == null || name.isEmpty()) &&
+                placesMax == 0 &&
+                costMin == 0 &&
+                (dateStartAfter == null || dateStartAfter.isEmpty()) &&
+                (dateStartBefore == null || dateStartBefore.isEmpty()) &&
+                costMax == 0 &&
+                durationMin == 0;
     }
 }

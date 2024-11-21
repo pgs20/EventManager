@@ -1,7 +1,5 @@
 package dev.petrov.dto.event;
 
-import java.time.LocalDateTime;
-
 public class Event {
     private Integer id;
     private String name;
@@ -87,4 +85,5 @@ public class Event {
     public void setOccupiedPlaces(Integer occupiedPlaces) {
         this.occupiedPlaces = occupiedPlaces;
     }
+
 }

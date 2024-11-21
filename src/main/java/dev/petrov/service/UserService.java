@@ -28,7 +28,6 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Transactional
     public User registrationUser(User user) {
         if (userRepository.existsByLogin(user.getLogin())) {
             throw new UserAlreadyExistsException("Пользователь с логином " + user.getLogin() + " уже существует");

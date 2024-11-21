@@ -1,7 +1,6 @@
 package dev.petrov.controller;
 
 import dev.petrov.converter.ConverterEvent;
-import dev.petrov.dto.MessageResponse;
 import dev.petrov.dto.event.request.EventCreateRequestDto;
 import dev.petrov.dto.event.EventDto;
 import dev.petrov.dto.event.request.EventSearchRequestDto;
@@ -40,9 +39,10 @@ public class EventsController {
     }
 
     @DeleteMapping("/{eventId}")
-    public ResponseEntity<MessageResponse> deleteEventById(@PathVariable Integer eventId) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(eventService.deleteEventById(eventId));
+    public ResponseEntity<Void> deleteEventById(@PathVariable Integer eventId) {
+        eventService.deleteEventById(eventId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @GetMapping("/{eventId}")
@@ -81,26 +81,5 @@ public class EventsController {
                         .map(converterEvent::toDto)
                         .collect(Collectors.toList())
         );
-    }
-
-    @PostMapping("/registrations/{eventId}")
-    public ResponseEntity<MessageResponse> registerForEvent(@PathVariable Integer eventId) {
-        return ResponseEntity.ok()
-                .body(eventService.registerUserForEvent(eventId));
-    }
-
-    @DeleteMapping("/registrations/cancel/{eventId}")
-    public ResponseEntity<MessageResponse> cancelRegistrationForEvent(@PathVariable Integer eventId) {
-        return ResponseEntity.ok()
-                .body(eventService.cancelRegistration(eventId));
-    }
-
-    @GetMapping("/registrations/my")
-    public ResponseEntity<List<EventDto>> getEventUserIsReg() {
-        return ResponseEntity.ok().body(
-                eventService.getEventsUserIsRegistered()
-                        .stream()
-                        .map(converterEvent::toDto)
-                        .collect(Collectors.toList()));
     }
 }
