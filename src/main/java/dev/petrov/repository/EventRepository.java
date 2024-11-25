@@ -12,8 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface EventRepository extends JpaRepository<EventEntity, Integer>, JpaSpecificationExecutor<EventEntity> {
-    @Query("SELECT e FROM EventEntity e WHERE e.owner.id = :ownerId")
-    Optional<List<EventEntity>> findByOwnerId(@Param("ownerId") String ownerId);
+    Optional<List<EventEntity>> findByOwnerId(String ownerId);
 
     @Query("FROM EventEntity e WHERE (:name IS NULL OR e.name LIKE :name) " +
             "AND (:placesMin IS NULL OR e.maxPlaces >= :placesMin) " +

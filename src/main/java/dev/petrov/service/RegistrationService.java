@@ -13,6 +13,7 @@ import dev.petrov.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,9 +38,9 @@ public class RegistrationService {
         this.converterEvent = converterEvent;
     }
 
+    @Transactional
     public void registerUserForEvent(Integer eventId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
 
         UserEntity userEntity = userRepository.getById(user.getId());
         EventEntity event = Optional.of(eventRepository.getById(eventId))
@@ -63,6 +64,7 @@ public class RegistrationService {
         eventRepository.save(event);
     }
 
+    @Transactional
     public void cancelRegistration(Integer eventId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 

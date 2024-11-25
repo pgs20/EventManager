@@ -81,13 +81,6 @@ public class EventService {
     }
 
     public List<Event> searchEventByFilter(EventSearchRequestDto searchRequestDto) {
-        if (searchRequestDto.isFilterEmpty()) {
-            return eventRepository.findAll()
-                    .stream()
-                    .map(converterEvent::toDomain)
-                    .collect(Collectors.toList());
-        }
-
         return eventRepository.findByFilters(
                         searchRequestDto.getName(),
                         searchRequestDto.getPlacesMin(),
@@ -104,7 +97,6 @@ public class EventService {
                         .map(converterEvent::toDomain)
                         .collect(Collectors.toList()))
                 .orElseThrow(() -> new EntityNotFoundException("Мероприятий по заданному фильтру не найдено"));
-
     }
 
     public List<Event> searchEventByOwnerId() {
