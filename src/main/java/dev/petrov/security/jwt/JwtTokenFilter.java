@@ -1,18 +1,18 @@
 package dev.petrov.security.jwt;
 
-import dev.petrov.entity.UserEntity;
-import dev.petrov.repository.UserRepository;
+import dev.petrov.dto.usersDto.User;
+import dev.petrov.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,11 +24,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(JwtTokenFilter.class);
     private final JwtTokenManager jwtTokenManager;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public JwtTokenFilter(JwtTokenManager jwtTokenManager, UserRepository userRepository) {
+    public JwtTokenFilter(JwtTokenManager jwtTokenManager, @Lazy UserService userService) {
         this.jwtTokenManager = jwtTokenManager;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @Override
@@ -49,13 +49,12 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return;
         }
 
-        UserEntity userEntity = userRepository.findUserByLogin(loginFromToken)
-                .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+        User user = userService.findUserByLogin(loginFromToken);
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                userEntity,
+                user,
                 null,
-                List.of(new SimpleGrantedAuthority(userEntity.getRole()))
+                List.of(new SimpleGrantedAuthority(user.getRole().name()))
         );
         SecurityContextHolder.getContext().setAuthentication(token);
         filterChain.doFilter(request, response);

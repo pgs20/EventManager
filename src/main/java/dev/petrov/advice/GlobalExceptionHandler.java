@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
@@ -69,6 +70,36 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ErrorMessageResponse> handleUserAlreadyExistsException(UserAlreadyExistsException e) {
+        ErrorMessageResponse errorDto = new ErrorMessageResponse(
+                "Невалидные данные",
+                e.getMessage(),
+                LocalDateTime.now()
+        );
+
+        log.error(errorDto.detailedMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<ErrorMessageResponse> handleDateTimeParseException(DateTimeParseException e) {
+        ErrorMessageResponse errorDto = new ErrorMessageResponse(
+                "Ошибка сервера",
+                e.getMessage(),
+                LocalDateTime.now()
+        );
+
+        log.error(errorDto.detailedMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(errorDto);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorMessageResponse> handleIllegalArgumentException(IllegalArgumentException e) {
         ErrorMessageResponse errorDto = new ErrorMessageResponse(
                 "Невалидные данные",
                 e.getMessage(),

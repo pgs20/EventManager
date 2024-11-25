@@ -3,6 +3,8 @@ package dev.petrov.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 public class UserEntity {
@@ -18,6 +20,8 @@ public class UserEntity {
     private Integer age;
     @Column(name = "role")
     private String role;
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<RegistrationEntity> registrationEntities;
 
     public UserEntity() {
     }
@@ -64,5 +68,9 @@ public class UserEntity {
                 ", age=" + age +
                 ", role='" + role + '\'' +
                 '}';
+    }
+
+    public List<RegistrationEntity> getRegistrationEntities() {
+        return registrationEntities;
     }
 }

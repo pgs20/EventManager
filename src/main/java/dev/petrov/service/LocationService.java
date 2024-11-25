@@ -17,35 +17,32 @@ import java.util.stream.Collectors;
 public class LocationService {
 
     private static final Logger log = LoggerFactory.getLogger(LocationService.class);
-    private final ConverterLocation converter;
+    private final ConverterLocation converterLocation;
     private final LocationRepository locationRepository;
 
-    public LocationService(ConverterLocation converter, LocationRepository locationRepository) {
-        this.converter = converter;
+    public LocationService(ConverterLocation converterLocation, LocationRepository locationRepository) {
+        this.converterLocation = converterLocation;
         this.locationRepository = locationRepository;
     }
 
     public List<Location> getAllLocations() {
-        log.info("Получение всех локаций");
         return locationRepository.findAll()
                 .stream()
-                .map(converter::toDomain)
+                .map(converterLocation::toDomain)
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public Location createLocation(Location locationToCreate) {
-        LocationEntity locationEntity = locationRepository.save(converter.toEntity(locationToCreate));
-        log.info("Создание локации: " + locationEntity);
+        LocationEntity locationEntity = locationRepository.save(converterLocation.toEntity(locationToCreate));
 
-        return converter.toDomain(locationEntity);
+        return converterLocation.toDomain(locationEntity);
     }
 
     public Location getLocationById(Long locationId) {
         LocationEntity locationEntity = locationRepository.getById(locationId);
-        log.info("Получение локации по id: " + locationEntity);
 
-        return converter.toDomain(locationEntity);
+        return converterLocation.toDomain(locationEntity);
     }
 
     public Location deleteLocation(Long locationId) {
@@ -54,8 +51,6 @@ public class LocationService {
         if (countDeleteEntity == 0) {
             throw new EntityNotFoundException("Не удалось удалить сущность, так как ее не существует");
         }
-
-        log.info("Сущность с id={} успешно удалена", locationId);
 
         return getLocationById(locationId);
     }
@@ -73,8 +68,13 @@ public class LocationService {
             throw new EntityNotFoundException("Не удалось обновить сущность, так как ее не существует");
         }
 
-        log.info("Сущность с id={} успешно обновлена", locationId);
-
         return getLocationById(locationId);
+    }
+
+    public Location findLocationById(Long locationId) {
+        return converterLocation.toDomain(
+                locationRepository.findById(locationId)
+                        .orElseThrow(() -> new IllegalArgumentException("Локация не найдена"))
+        );
     }
 }
