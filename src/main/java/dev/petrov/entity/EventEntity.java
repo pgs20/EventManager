@@ -126,4 +126,21 @@ public class EventEntity {
     public void setOccupiedPlaces(Integer occupiedPlaces) {
         this.occupiedPlaces = occupiedPlaces;
     }
+
+    @Override
+    public String toString() {
+        return "EventEntity{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", ownerId='" + ownerId + '\'' +
+                ", maxPlaces=" + maxPlaces +
+                ", occupiedPlaces=" + occupiedPlaces +
+                ", date='" + date + '\'' +
+                ", cost=" + cost +
+                ", duration=" + duration +
+                ", locationId=" + locationId +
+                ", status='" + status + '\'' +
+                ", registrationEntities=" + registrationEntities +
+                '}';
+    }
 }

@@ -1,6 +1,7 @@
 package dev.petrov.service;
 
 import dev.petrov.converter.ConverterEvent;
+import dev.petrov.converter.ConverterUser;
 import dev.petrov.converter.UpdateEventMapper;
 import dev.petrov.dto.event.Event;
 import dev.petrov.dto.event.EventStatus;
@@ -9,8 +10,13 @@ import dev.petrov.dto.locationDto.Location;
 import dev.petrov.dto.usersDto.User;
 import dev.petrov.dto.usersDto.UserRole;
 import dev.petrov.entity.EventEntity;
+import dev.petrov.entity.RegistrationEntity;
+import dev.petrov.kafka.EventKafkaNotification;
+import dev.petrov.kafka.EventSender;
 import dev.petrov.repository.EventRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -21,18 +27,23 @@ import java.util.stream.Collectors;
 @Service
 public class EventService {
 
+    private final Logger log = LoggerFactory.getLogger(EventService.class);
     private final EventRepository eventRepository;
     private final ConverterEvent converterEvent;
+    private final ConverterUser converterUser;
     private final LocationService locationService;
+    private final EventSender eventSender;
 
 
     public EventService(EventRepository eventRepository,
                         ConverterEvent converterEvent,
-                        LocationService locationService
-    ) {
+                        ConverterUser converterUser, LocationService locationService,
+                        EventSender eventSender) {
         this.eventRepository = eventRepository;
         this.converterEvent = converterEvent;
+        this.converterUser = converterUser;
         this.locationService = locationService;
+        this.eventSender = eventSender;
     }
 
     public Event createEvent(Event event) {
@@ -71,11 +82,22 @@ public class EventService {
 
         EventEntity event = validateBeforeAction(eventId, user);
 
-        if (updateEvent.getMaxPlaces() > event.getMaxPlaces()) {
+        if (updateEvent.getMaxPlaces() < event.getMaxPlaces()) {
             throw new IllegalArgumentException("Ошибка: максимальное кол-во мест должно быть больше предыдущего значения");
         }
 
         UpdateEventMapper.updateEventFromDto(event, updateEvent);
+
+        eventSender.sendEvent(
+                new EventKafkaNotification(
+                        event.getId(),
+                        user.getId(),
+                        event.getOwnerId(),
+                        event.getRegistrationEntities()
+                                .stream()
+                                .map(registrationEntity -> registrationEntity.getUser().getId())
+                                .collect(Collectors.toList())
+                ));
 
         return converterEvent.toDomain(eventRepository.save(event));
     }

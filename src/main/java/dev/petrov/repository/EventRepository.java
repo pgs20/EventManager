@@ -7,18 +7,19 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface EventRepository extends JpaRepository<EventEntity, Integer>, JpaSpecificationExecutor<EventEntity> {
+public interface EventRepository extends JpaRepository<EventEntity, Integer> {
     Optional<List<EventEntity>> findByOwnerId(String ownerId);
 
     @Query("FROM EventEntity e WHERE (:name IS NULL OR e.name LIKE :name) " +
             "AND (:placesMin IS NULL OR e.maxPlaces >= :placesMin) " +
             "AND (:placesMax IS NULL OR e.maxPlaces <= :placesMax) " +
-            "AND (:dateStartAfter IS NULL OR e.date >= CAST(:dateStartAfter AS LocalDateTime)) " +
-            "AND (:dateStartBefore IS NULL OR e.date <= CAST(:dateStartBefore AS LocalDateTime)) " +
+            "AND (:dateStartAfter IS NULL OR e.date >= :dateStartAfter) " +
+            "AND (:dateStartBefore IS NULL OR e.date <= :dateStartBefore) " +
             "AND (:costMin IS NULL OR e.cost >= :costMin) " +
             "AND (:costMax IS NULL OR e.cost <= :costMax) " +
             "AND (:durationMin IS NULL OR e.duration >= :durationMin) " +
