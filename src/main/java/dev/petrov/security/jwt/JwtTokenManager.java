@@ -1,5 +1,6 @@
 package dev.petrov.security.jwt;
 
+import dev.petrov.dto.usersDto.UserRole;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.slf4j.Logger;
@@ -23,11 +24,12 @@ public class JwtTokenManager {
         this.expirationTime = expirationTime;
     }
 
-    public String generateToken(String login) {
+    public String generateToken(String login, String role) {
         log.info("Генерация ключа для {}", login);
         return Jwts
                 .builder()
                 .subject(login)
+                .claim("role", role)
                 .signWith(key)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationTime))
@@ -35,12 +37,22 @@ public class JwtTokenManager {
     }
 
     public String getLoginFromToken(String jwt) {
-        log.info("Извлечение информации из токена");
+        log.info("Извлечение логина из токена");
         return Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(jwt)
                 .getPayload()
                 .getSubject();
+    }
+
+    public String getRoleFromToken(String jwt) {
+        log.info("Извлечение роли из токена");
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(jwt)
+                .getPayload()
+                .get("role", String.class);
     }
 }

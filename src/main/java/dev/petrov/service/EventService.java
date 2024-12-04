@@ -10,9 +10,9 @@ import dev.petrov.dto.locationDto.Location;
 import dev.petrov.dto.usersDto.User;
 import dev.petrov.dto.usersDto.UserRole;
 import dev.petrov.entity.EventEntity;
-import dev.petrov.entity.RegistrationEntity;
 import dev.petrov.kafka.EventKafkaNotification;
 import dev.petrov.kafka.EventSender;
+import dev.petrov.kafka.FieldChange;
 import dev.petrov.repository.EventRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
@@ -86,8 +86,6 @@ public class EventService {
             throw new IllegalArgumentException("Ошибка: максимальное кол-во мест должно быть больше предыдущего значения");
         }
 
-        UpdateEventMapper.updateEventFromDto(event, updateEvent);
-
         eventSender.sendEvent(
                 new EventKafkaNotification(
                         event.getId(),
@@ -96,8 +94,17 @@ public class EventService {
                         event.getRegistrationEntities()
                                 .stream()
                                 .map(registrationEntity -> registrationEntity.getUser().getId())
-                                .collect(Collectors.toList())
+                                .collect(Collectors.toList()),
+                        new FieldChange<String>(event.getName(), updateEvent.getName()),
+                        new FieldChange<Integer>(event.getMaxPlaces(), updateEvent.getMaxPlaces()),
+                        new FieldChange<String>(event.getDate(), updateEvent.getDate()),
+                        new FieldChange<Integer>(event.getCost(), updateEvent.getCost()),
+                        new FieldChange<Integer>(event.getDuration(), updateEvent.getDuration()),
+                        new FieldChange<Long>(event.getLocationId(), updateEvent.getLocationId())
+
                 ));
+
+        UpdateEventMapper.updateEventFromDto(event, updateEvent);
 
         return converterEvent.toDomain(eventRepository.save(event));
     }
