@@ -68,6 +68,26 @@ public class EventService {
         EventEntity event = validateBeforeAction(eventId, user);
 
         event.setStatus(EventStatus.CANCELLED.name());
+
+        eventSender.sendEvent(
+                new EventKafkaNotification(
+                        event.getId(),
+                        user.getId(),
+                        event.getOwnerId(),
+                        event.getRegistrationEntities()
+                                .stream()
+                                .map(registrationEntity -> registrationEntity.getUser().getId())
+                                .collect(Collectors.toList()),
+                        new FieldChange<String>(event.getName(), null),
+                        new FieldChange<Integer>(event.getMaxPlaces(), null),
+                        new FieldChange<String>(event.getDate(), null),
+                        new FieldChange<Integer>(event.getCost(), null),
+                        new FieldChange<Integer>(event.getDuration(), null),
+                        new FieldChange<Long>(event.getLocationId(), null),
+                        event.getStatus()
+                )
+        );
+
         eventRepository.save(event);
     }
 
@@ -100,8 +120,8 @@ public class EventService {
                         new FieldChange<String>(event.getDate(), updateEvent.getDate()),
                         new FieldChange<Integer>(event.getCost(), updateEvent.getCost()),
                         new FieldChange<Integer>(event.getDuration(), updateEvent.getDuration()),
-                        new FieldChange<Long>(event.getLocationId(), updateEvent.getLocationId())
-
+                        new FieldChange<Long>(event.getLocationId(), updateEvent.getLocationId()),
+                        event.getStatus()
                 ));
 
         UpdateEventMapper.updateEventFromDto(event, updateEvent);

@@ -1,5 +1,7 @@
 package dev.petrov.kafka;
 
+import dev.petrov.dto.event.EventStatus;
+
 import java.util.List;
 
 public record EventKafkaNotification(
@@ -12,6 +14,7 @@ public record EventKafkaNotification(
         FieldChange<String> date,
         FieldChange<Integer> cost,
         FieldChange<Integer> duration,
-        FieldChange<Long> locationId
+        FieldChange<Long> locationId,
+        String status
 ) {
 }
